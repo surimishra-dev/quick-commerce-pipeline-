@@ -11,10 +11,13 @@ mysql_config = {
 
 def fetch_orders(mysql_config):
     conn = mysql.connector.connect(**mysql_config)
+    print=("DB Connected")
     query = """SELECT *
     FROM orders"""
     #WHERE order_ts > DATE_SUB(NOW(), INTERVAL 24 HOUR);"""
+    print("Query executing")
     df_orders = pd.read_sql(query, conn)
+    print("Data read")
     conn.close()
     print('length is : ', len(df_orders))
     print('result is : ', df_orders)
