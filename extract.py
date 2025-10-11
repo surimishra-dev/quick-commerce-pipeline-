@@ -2,10 +2,10 @@ import mysql.connector
 import pandas as pd
 
 mysql_config = {
-    'host': '34.131.151.91',
-    'user': 'suryansh',
-    'password': 'Suri_mishra@12',
-    'database': 'quick-commerce-data',
+    'host': '34.47.253.108',
+    'user': 'abhranil',
+    'password': 'Abhranil@89',
+    'database': 'QuickCommerce',
     'port': 3306
 }
 
@@ -19,5 +19,5 @@ def fetch_orders(mysql_config):
     print('length is : ', len(df_orders))
     print('result is : ', df_orders)
     return df_orders
-if __name__ == "__main__":
-    fetch_orders(mysql_config)
+#if __name__ == "__main__":
+fetch_orders(mysql_config)
