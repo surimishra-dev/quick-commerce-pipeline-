@@ -12,8 +12,8 @@ mysql_config = {
 def fetch_orders(mysql_config):
     conn = mysql.connector.connect(**mysql_config)
     query = """SELECT *
-    FROM orders
-    WHERE order_ts > DATE_SUB(NOW(), INTERVAL 24 HOUR);"""
+    FROM orders"""
+    #WHERE order_ts > DATE_SUB(NOW(), INTERVAL 24 HOUR);"""
     df_orders = pd.read_sql(query, conn)
     conn.close()
     print('length is : ', len(df_orders))
