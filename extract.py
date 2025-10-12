@@ -2,10 +2,10 @@ import mysql.connector
 import pandas as pd
 
 mysql_config = {
-    'host': '34.100.221.118',
-    'user': 'abhranil',
-    'password': 'Abhranil@89',
-    'database': 'QuickCommerce',
+    'host': '34.131.10.133',
+    'user': 'surimishra',
+    'password': 'Surimishra@gmail.com',
+    'database': 'mysql',
     'port': 3306
 }
 
