@@ -1,8 +1,9 @@
-import mysql.connector
+import mysql.connector as mysql
 import MySQLdb
+import mysql.connector
 import pandas as pd
 
-db = MySQLdb.connect = {
+db = mysql.connect = {
     'host': '34.180.3.122',
     'user': 'abhranil',
     'password': 'Abhranil@89',
