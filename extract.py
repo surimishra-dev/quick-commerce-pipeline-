@@ -3,7 +3,7 @@
 
 # Connect to MySQL
 #db = mysql.connector.connect(
-#    host="34.47.253.108",
+#    host="192.168.224.3",
 #    user="abhranil",
 #    password="Abhranil@89",
 #    database="QuickCommerce",
