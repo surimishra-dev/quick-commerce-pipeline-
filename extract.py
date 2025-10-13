@@ -18,6 +18,6 @@ cur = db.cursor()
 cur.execute("SELECT * Orders")
 # print all the first cell of all the rows
 for row in cur.fetchall():
-    print row[0]
+    print(row[0])
 
 db.close()
