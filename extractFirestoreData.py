@@ -1,9 +1,6 @@
 import pandas as pd
 from google.cloud import firestore
 
-# -----------------------------
-# Initialize Firestore client
-# -----------------------------
 # Option 1: Use VM's default service account (if running inside GCP VM)
 db = firestore.Client()
 
@@ -12,7 +9,7 @@ db = firestore.Client()
 # -----------------------------
 collection_name = "Inventory"  # Replace with your collection
 collection_ref = db.collection(collection_name)
-
+print("Connected to Firestore")
 # -----------------------------
 # Fetch all documents
 # -----------------------------
