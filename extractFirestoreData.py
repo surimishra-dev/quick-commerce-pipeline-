@@ -1,8 +1,11 @@
 import pandas as pd
-from google.cloud import firestore
+
+from google.cloud import datastore
+
+client = datastore.Client()
 
 # Option 1: Use VM's default service account (if running inside GCP VM)
-db = firestore.Client()
+db = datastore.Client()
 
 # -----------------------------
 # Set the collection name
