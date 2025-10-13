@@ -1,26 +1,23 @@
 import mysql.connector
+import MySQLdb
 import pandas as pd
 
-mysql_config = {
-    'host': '34.100.221.118',
+db = MySQLdb.connect = {
+    'host': '34.180.3.122',
     'user': 'abhranil',
     'password': 'Abhranil@89',
     'database': 'QuickCommerce',
-    'port': 3306
+    'port': 22
 }
 
-def fetch_orders(mysql_config):
-    conn = mysql.connector.connect(**mysql_config)
-    print=("DB Connected")
-    query = """SELECT *
-    FROM orders"""
-    #WHERE order_ts > DATE_SUB(NOW(), INTERVAL 24 HOUR);"""
-    print("Query executing")
-    df_orders = pd.read_sql(query, conn)
-    print("Data read")
-    conn.close()
-    print('length is : ', len(df_orders))
-    print('result is : ', df_orders)
-    return df_orders
-#if __name__ == "__main__":
-fetch_orders(mysql_config)
+# you must create a Cursor object. It will let
+#  you execute all the queries you need
+cur = db.cursor()
+
+# Use all the SQL you like
+cur.execute("SELECT * Orders")
+# print all the first cell of all the rows
+for row in cur.fetchall():
+    print row[0]
+
+db.close()
