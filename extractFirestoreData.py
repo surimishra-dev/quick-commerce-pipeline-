@@ -1,26 +1,37 @@
-from google.cloud import datastore
-import pandas as pd
+from pymongo import MongoClient
+from urllib.parse import quote_plus
 
-# Initialize client (uses default VM credentials)
-client = datastore.Client(project="flawless-agency-474210-p4")
+# MongoDB-compatible Firestore connection details
+username = "abhranil"  # MongoDB username
+password = "ljcVOu0GqPUpc7PBnrsVCzr_Q9kFMy59NBFuiTrKf01_Lf0z"  # Your new password for the MongoDB user
+host = "89848341-4b54-406a-b047-a2e911f2ee64.asia-south1.firestore.goog"  # Firestore MongoDB endpoint
+database_name = "quick-commerce-inventory"  # Database name
 
-# Replace with your Kind name
-kind_name = "InventoryData"
+# URL-encode password
+encoded_password = quote_plus(password)
 
-# Query all entities
-query = client.query(kind=kind_name)
-entities = list(query.fetch())
+# Build the MongoDB URI using the connection string
+uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
 
-# Convert to list of dictionaries
-rows = []
-for e in entities:
-    record = dict(e)
-    record["_id"] = e.key.id_or_name  # store key as id
-    rows.append(record)
+# Create a MongoClient instance
+client = MongoClient(uri, serverSelectionTimeoutMS=10000)  # Timeout in milliseconds
 
-# Convert to DataFrame
-df = pd.DataFrame(rows)
+# Try connecting to the server
+try:
+    # Ping the database to test the connection
+    client.admin.command("ping")
+    print("Connected to MongoDB-compatible Firestore successfully!")
+    
+    # Access the specific collection (InventoryData)
+    db = client[database_name]
+    collection = db["InventoryData"]
 
-print(f"Fetched {len(df)} entities from kind '{kind_name}'")
-print(df.head())
-
+    # Fetch the first 3 documents from the collection
+    docs = list(collection.find())
+    
+    # Print the documents
+    for doc in docs:
+        print(doc)
+        
+except Exception as e:
+    print("Failed to connect or fetch data:", e)
