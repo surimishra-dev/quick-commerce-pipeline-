@@ -3,7 +3,7 @@ import pandas as pd
 
 # Connect to MySQL
 db = mysql.connector.connect(
-    host="34.180.3.122",
+    host="34.47.253.108",
     user="abhranil",
     password="Abhranil@89",
     database="QuickCommerce",
