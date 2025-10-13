@@ -3,9 +3,10 @@ import pandas as pd
 
 # Initialize Datastore client
 client = datastore.Client()  # uses VM default credentials or JSON key
-
+print("Connected Firestore")
 # Set the kind (Datastore uses 'Kind' instead of 'Collection')
 kind = "InventoryData"  # Replace with your Datastore kind name
+print("InventoryData")
 
 # Create a query
 query = client.query(kind=kind)
