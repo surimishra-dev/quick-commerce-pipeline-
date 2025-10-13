@@ -1,48 +1,26 @@
 from google.cloud import datastore
 import pandas as pd
 
-def fetch_datastore_data(project_id, kind_name):
-    """
-    Fetch all entities from a Firestore Datastore-mode kind.
-    """
-    # Initialize Datastore client
-    client = datastore.Client(project=project_id)
+# Initialize client (uses default VM credentials)
+client = datastore.Client(project="flawless-agency-474210-p4")
 
-    # Create a query for the given kind
-    query = client.query(kind=kind_name)
+# Replace with your Kind name
+kind_name = "InventoryData"
 
-    # Fetch results
-    results = list(query.fetch())
+# Query all entities
+query = client.query(kind=kind_name)
+entities = list(query.fetch())
 
-    if not results:
-        print(f"No data found in kind '{kind_name}'.")
-        return pd.DataFrame()
+# Convert to list of dictionaries
+rows = []
+for e in entities:
+    record = dict(e)
+    record["_id"] = e.key.id_or_name  # store key as id
+    rows.append(record)
 
-    # Convert each entity to a dictionary
-    data = []
-    for entity in results:
-        entity_dict = dict(entity)
-        entity_dict["_id"] = entity.key.id_or_name  # include entity key
-        data.append(entity_dict)
+# Convert to DataFrame
+df = pd.DataFrame(rows)
 
-    # Convert to Pandas DataFrame
-    df = pd.DataFrame(data)
+print(f"Fetched {len(df)} entities from kind '{kind_name}'")
+print(df.head())
 
-    print(f"✅ Fetched {len(df)} entities from kind '{kind_name}'")
-    print(df.head())
-
-    return df
-
-
-if __name__ == "__main__":
-    # Replace these with your values
-    PROJECT_ID = "flawless-agency-474210-p4"   # your GCP project ID
-    KIND_NAME = "InventoryData"                        # your Datastore kind name
-
-    # Fetch data
-    df = fetch_datastore_data(PROJECT_ID, KIND_NAME)
-
-    # Optional: Save to CSV
-    if not df.empty:
-        df.to_csv("datastore_data.csv", index=False)
-        print("📁 Data saved to datastore_data.csv")
