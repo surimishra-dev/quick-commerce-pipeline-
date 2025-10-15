@@ -30,7 +30,7 @@ try:
     cur=conn.cursor()
     cur.execute("SELECT * FROM Orders")
     for row in cur.fetchall():
-        print row[0]
+        print(row[0])
 
 except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
