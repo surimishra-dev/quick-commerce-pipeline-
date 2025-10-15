@@ -28,7 +28,7 @@ try:
 
     print("✅ Connected to Cloud SQL!")
     cur=conn.cursor()
-    cur.execute("SELECT * FROM Orders")
+    cur.execute("SELECT * FROM orders")
     for row in cur.fetchall():
         print(row[0])
 
