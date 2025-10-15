@@ -52,7 +52,7 @@ print(df)
 
 # Optionally remove MongoDB’s internal _id field
 if "_id" in df.columns:
-df["_id"] = df["_id"].astype(str)  # convert ObjectId to string for readability
+    df["_id"] = df["_id"].astype(str)  # convert ObjectId to string for readability
 
 #Save DataFrame to CSV
 df.to_csv(CSV_FILE, index=False)
