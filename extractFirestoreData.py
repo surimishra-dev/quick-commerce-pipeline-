@@ -20,7 +20,7 @@ uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadB
 GCS bucket configuration
 CSV_FILE = "inventory_data.csv"
 BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
-DESTINATION_BLOB_NAME = "Inventorydata/inventory_data.csv
+DESTINATION_BLOB_NAME = "Inventorydata/inventory_data.csv"
 
 # Create a MongoClient instance
 client = MongoClient(uri, serverSelectionTimeoutMS=10000)  # Timeout in milliseconds
