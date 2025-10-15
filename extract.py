@@ -46,6 +46,11 @@ try:
         print("✅ Data successfully loaded into DataFrame!")
         print(df.head())
 
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    local_csv_path = f"orders_data_{timestamp}.csv"
+    df.to_csv(local_csv_path, index=False)
+    print(f"✅ Data saved locally as {local_csv_path}")
+
 except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
 
