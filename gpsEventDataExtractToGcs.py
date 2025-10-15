@@ -44,7 +44,7 @@ query = (
     df_final.writeStream
         .format("csv")
         .option("checkpointLocation", OUTPUT_PATH + "checkpoints/")
-        .option("path", OUTPUT_PATH + "csv/")
+        .option("path", OUTPUT_PATH)
         .option("header", "true")
         .outputMode("append")
         .trigger(processingTime="10 seconds")
