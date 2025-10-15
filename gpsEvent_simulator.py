@@ -30,7 +30,7 @@ def generate_gps_event(courier_id):
 try:
     print("🚀 Starting GPS data stream...")
     while True:
-        for courier_id in ["C123", "C124", "C125"]:
+        for courier_id in ["C100", "C101", "C102","C103","C104","C105","C106","C107","C108","C109","C110","C111","C112","C113","C114","C115","C116","C117","C118"]:
             event = generate_gps_event(courier_id)
             data_str = json.dumps(event)
             data_bytes = data_str.encode("utf-8")
