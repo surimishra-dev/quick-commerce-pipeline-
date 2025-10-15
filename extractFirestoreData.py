@@ -17,7 +17,7 @@ encoded_password = quote_plus(password)
 # Build the MongoDB URI using the connection string
 uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
 
-GCS bucket configuration
+#GCS bucket configuration
 CSV_FILE = "inventory_data.csv"
 BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
 DESTINATION_BLOB_NAME = "Inventorydata/inventory_data.csv"
