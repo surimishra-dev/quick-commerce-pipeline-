@@ -24,11 +24,11 @@
 #db.close()
 
 
-import mysql.connector
+import mySQLdb.connector
 import pandas as pd
 
 try:
-    conn = mysql.connector.connect(
+    conn = mySQLdb.connect(
         host="192.168.224.3",   # replace with your Cloud SQL public IP
         user="abhranil",
         password="Abhranil@89",
@@ -42,7 +42,7 @@ try:
     df = pd.read_sql(query, conn)
     print(df.head())
 
-except mysql.connector.Error as err:
+except mySQLdb.connector.Error as err:
     print(f"❌ Error: {err}")
 
 finally:
