@@ -17,7 +17,7 @@
 import MySQLdb
 import pandas as pd
 from datetime import datetime 
-# from google.cloud import storage
+from google.cloud import storage
 
 try:
     conn = MySQLdb.connect(
