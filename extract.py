@@ -52,6 +52,18 @@ try:
     df.to_csv(local_csv_path, index=False)
     print(f"✅ Data saved locally as {local_csv_path}")
 
+    bucket_name = "dataproc-staging-asia-south1-297094044725-gxm4u7vu"
+    destination_blob = f"orders_data/{local_csv_path}"  # folder + file name
+
+        # Create a GCS client (ensure your VM has permissions or a service account key)
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob)
+
+        # Upload the CSV file to GCS
+    blob.upload_from_filename(local_csv_path)
+    print(f"✅ File uploaded to GCS bucket '{bucket_name}' at '{destination_blob}'")
+
 except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
 
