@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from urllib.parse import quote_plus
 import pandas as pd
-#from google.cloud import storage
+from google.cloud import storage
 import os
 
 # MongoDB-compatible Firestore connection details
@@ -17,10 +17,10 @@ encoded_password = quote_plus(password)
 # Build the MongoDB URI using the connection string
 uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
 
-#GCS bucket configuration
-#CSV_FILE = "inventory_data.csv"
-#BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
-#DESTINATION_BLOB_NAME = "data/inventory_data.csv
+GCS bucket configuration
+CSV_FILE = "inventory_data.csv"
+BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
+DESTINATION_BLOB_NAME = "Inventorydata/inventory_data.csv
 
 # Create a MongoClient instance
 client = MongoClient(uri, serverSelectionTimeoutMS=10000)  # Timeout in milliseconds
@@ -49,4 +49,27 @@ except Exception as e:
 df = pd.DataFrame(docs)
 print("Print the Dataframe")
 print(df)
+
+ #Save DataFrame to CSV
+df.to_csv(CSV_FILE, index=False)
+print(f"💾 Data saved locally to: {CSV_FILE}")
+
+#Upload CSV to GCS bucket
+print("☁️ Uploading CSV to GCS bucket...")
+storage_client = storage.Client()
+bucket = storage_client.bucket(BUCKET_NAME)
+blob = bucket.blob(DESTINATION_BLOB_NAME)
+blob.upload_from_filename(CSV_FILE)
+print(f"✅ File uploaded to gs://{BUCKET_NAME}/{DESTINATION_BLOB_NAME}")
+
+except Exception as e:
+    print("❌ Failed to connect or fetch data:", e)
+
+finally:
+    try:
+        client.close()
+        print("🔒 MongoDB connection closed.")
+    except:
+        pass
+
 
