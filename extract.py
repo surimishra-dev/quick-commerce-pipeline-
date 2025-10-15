@@ -1,4 +1,4 @@
-
+    
 
 # Create a cursor
 #cur = db.cursor()
@@ -30,12 +30,21 @@ try:
     print("✅ Connected to Cloud SQL!")
     cur=conn.cursor()
     cur.execute("SELECT * FROM orders")
-    for row in cur.fetchall():
-        print(row[0])
-    column_names = [desc[0] for desc in cur.description]  # get column names from cursor
-    df = pd.DataFrame(rows, columns=column_names)
-    print("✅ Data loaded into DataFrame!")
-    print(df.head())
+    rows=cur.fetchall()
+    if not rows:
+        print("⚠️ No records found in 'orders' table.")
+    else:
+        # Print sample output (first column as you had)
+        print(f"✅ Fetched {len(rows)} records.")
+        for row in rows[:5]:  # print first few rows for verification
+            print(row[0])
+
+        # ---------- 3️⃣ Convert to DataFrame ----------
+        column_names = [desc[0] for desc in cur.description]  # Get column names
+        df = pd.DataFrame(rows, columns=column_names)
+
+        print("✅ Data successfully loaded into DataFrame!")
+        print(df.head())
 
 except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
