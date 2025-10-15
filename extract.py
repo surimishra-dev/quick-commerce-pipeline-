@@ -1,14 +1,4 @@
 
-import pandas as pd
-
-# Connect to MySQL
-#db = mysql.connector.connect(
-#    host="192.168.224.3",
-#    user="abhranil",
-#    password="Abhranil@89",
-#    database="QuickCommerce",
-#    port=3306  # MySQL default port, not 22 (22 is SSH)
-#)
 
 # Create a cursor
 #cur = db.cursor()
@@ -37,12 +27,12 @@ try:
     )
 
     print("✅ Connected to Cloud SQL!")
+    cur=conn.cursor()
+    cur.execute("SELECT * FROM Orders")
+    for row in cur.fetchall():
+        print row[0]
 
-    query = "SELECT * FROM Orders;"
-    df = pd.read_sql(query, conn)
-    print(df.head())
-
-except MySQLdb.connect.Error as err:
+except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
 
 # finally:
