@@ -31,6 +31,10 @@ try:
     cur.execute("SELECT * FROM orders")
     for row in cur.fetchall():
         print(row[0])
+    column_names = [desc[0] for desc in cur.description]  # get column names from cursor
+    df = pd.DataFrame(rows, columns=column_names)
+    print("✅ Data loaded into DataFrame!")
+    print(df.head())
 
 except MySQLdb.Error as err:
     print(f"❌ Error: {err}")
