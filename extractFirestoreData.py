@@ -42,29 +42,29 @@ try:
     for doc in docs:
         print(doc)
         
-except Exception as e:
-    print("Failed to connect or fetch data:", e)
+    #except Exception as e:
+    #print("Failed to connect or fetch data:", e)
 
- # Convert documents to Pandas DataFrame
-df = pd.DataFrame(docs)
-print("Print the Dataframe")
-print(df)
+     # Convert documents to Pandas DataFrame
+    df = pd.DataFrame(docs)
+    print("Print the Dataframe")
+    print(df)
 
-# Optionally remove MongoDB’s internal _id field
-if "_id" in df.columns:
-    df["_id"] = df["_id"].astype(str)  # convert ObjectId to string for readability
+    # Optionally remove MongoDB’s internal _id field
+    if "_id" in df.columns:
+        df["_id"] = df["_id"].astype(str)  # convert ObjectId to string for readability
 
-#Save DataFrame to CSV
-df.to_csv(CSV_FILE, index=False)
-print(f"💾 Data saved locally to: {CSV_FILE}")
+    #Save DataFrame to CSV
+    df.to_csv(CSV_FILE, index=False)
+    print(f"💾 Data saved locally to: {CSV_FILE}")
 
-#Upload CSV to GCS bucket
-print("☁️ Uploading CSV to GCS bucket...")
-storage_client = storage.Client()
-bucket = storage_client.bucket(BUCKET_NAME)
-blob = bucket.blob(DESTINATION_BLOB_NAME)
-blob.upload_from_filename(CSV_FILE)
-print(f"✅ File uploaded to gs://{BUCKET_NAME}/{DESTINATION_BLOB_NAME}")
+    #Upload CSV to GCS bucket
+    print("☁️ Uploading CSV to GCS bucket...")
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
+    blob = bucket.blob(DESTINATION_BLOB_NAME)
+    blob.upload_from_filename(CSV_FILE)
+    print(f"✅ File uploaded to gs://{BUCKET_NAME}/{DESTINATION_BLOB_NAME}")
 
 except Exception as e:
     print("❌ Failed to connect or fetch data:", e)
