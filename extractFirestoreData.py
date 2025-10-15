@@ -18,9 +18,9 @@ encoded_password = quote_plus(password)
 uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
 
 #GCS bucket configuration
-CSV_FILE = "inventory_data.csv"
-BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
-DESTINATION_BLOB_NAME = "data/inventory_data.csv
+#CSV_FILE = "inventory_data.csv"
+#BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
+#DESTINATION_BLOB_NAME = "data/inventory_data.csv
 
 # Create a MongoClient instance
 client = MongoClient(uri, serverSelectionTimeoutMS=10000)  # Timeout in milliseconds
