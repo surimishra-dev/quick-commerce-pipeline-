@@ -31,11 +31,8 @@ try:
 
     print("✅ Connected to Cloud SQL!")
     cur=conn.cursor()
-    print("Cursor established")
-    cur.execute("SELECT * FROM orders")
-    print("Query fired")
+    cur.execute("SELECT * FROM Orders")
     rows=cur.fetchall()
-    print("Fetched Data")
     if not rows:
         print("⚠️ No records found in 'orders' table.")
     else:
