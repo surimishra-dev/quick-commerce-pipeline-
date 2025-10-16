@@ -21,10 +21,10 @@ from google.cloud import storage
 
 try:
     conn = MySQLdb.connect(
-        host="10.29.208.3",   # replace with your Cloud SQL public IP
-        user="suryanshm",
-        password="Suri_mishra@12",
-        database="quick-commerce",
+        host="192.168.224.3",   # replace with your Cloud SQL public IP
+        user="abhranil",
+        password="Abhranil@89",
+        database="QuickCommerce",
         port=3306
     )
 
