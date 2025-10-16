@@ -52,8 +52,8 @@ try:
     df.to_csv(local_csv_path, index=False)
     print(f"✅ Data saved locally as {local_csv_path}")
 
-    bucket_name = "dataproc-staging-asia-south1-297094044725-gxm4u7vu"
-    destination_blob = f"orders_data/{local_csv_path}"  # folder + file name
+    bucket_name = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"
+    destination_blob = f"OrdersData/{local_csv_path}"  # folder + file name
 
         # Create a GCS client (ensure your VM has permissions or a service account key)
     storage_client = storage.Client()
