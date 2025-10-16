@@ -29,7 +29,7 @@ def generate_status_event(order_id, courier_id):
 # ===== Stream status data continuously =====
 try:
     print("🚀 Starting StatusEvent data stream...")
-    order_base = 1000
+    order_base = 1
     courier_ids = ["C100","C101","C102","C103","C104","C105","C106","C107","C108","C109","C110","C111","C112","C113","C114","C115","C116","C117","C118"]
 
     while True:
