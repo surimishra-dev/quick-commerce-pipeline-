@@ -13,7 +13,8 @@
 
 #db.close()
 
-
+import pymysql
+pymysql.install_as_MySQLdb()
 import MySQLdb
 import pandas as pd
 from datetime import datetime 
