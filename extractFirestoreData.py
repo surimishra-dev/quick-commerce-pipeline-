@@ -5,11 +5,11 @@ from google.cloud import storage
 import os
 
 # MongoDB-compatible Firestore connection details
-username = "abhranil"  # MongoDB username
-password = "ljcVOu0GqPUpc7PBnrsVCzr_Q9kFMy59NBFuiTrKf01_Lf0z"  # Your new password for the MongoDB user
-host = "89848341-4b54-406a-b047-a2e911f2ee64.asia-south1.firestore.goog"  # Firestore MongoDB endpoint
+username = "inventory"  # MongoDB username
+password = "NtNJjVWmFRhmgcADtjodPJVe2qKsX2AOQbHRD4YerzPGDNr9"  # Your new password for the MongoDB user
+host = "1895548d-c7cc-4025-b91b-240b0633c8bb.asia-south1.firestore.goog"  # Firestore MongoDB endpoint
 database_name = "quick-commerce-inventory"  # Database name
-collection_name = "InventoryData"
+collection_name = "items"
 
 # URL-encode password
 encoded_password = quote_plus(password)
@@ -19,7 +19,7 @@ uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadB
 
 #GCS bucket configuration
 CSV_FILE = "inventory_data.csv"
-BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"  # 🔹 Replace with your actual bucket name
+BUCKET_NAME = "dataproc-staging-asia-south1-297094044725-gxm4u7vu"  # 🔹 Replace with your actual bucket name
 DESTINATION_BLOB_NAME = "Inventorydata/inventory_data.csv"
 
 # Create a MongoClient instance
