@@ -9,12 +9,17 @@ import os
 username = "inventory"
 password = "NtNJjVWmFRhmgcADtjodPJVe2qKsX2AOQbHRD4YerzPGDNr9"
 host = "1895548d-c7cc-4025-b91b-240b0633c8bb.asia-south1.firestore.goog"
-database_name = "quick-commerce-inventory"  # ✅ verify this in Firestore MongoDB UI
-collection_name = "items"  # ✅ corrected collection name
+database_name = "quick-commerce-inventory"
+collection_name = "items"
 
+# Encode password safely
 encoded_password = quote_plus(password)
 
-uri = f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
+# Build MongoDB connection URI
+uri = (
+    f"mongodb://{username}:{encoded_password}@{host}:443/{database_name}"
+    "?loadBalanced=true&tls=true&authMechanism=SCRAM-SHA-256&retryWrites=false"
+)
 
 # === GCS bucket configuration ===
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -34,7 +39,7 @@ try:
 
     collection = db[collection_name]
 
-    # Fetch documents
+    # Fetch all documents
     docs = list(collection.find())
     print(f"📦 Retrieved {len(docs)} documents from '{collection_name}'")
 
@@ -44,14 +49,17 @@ try:
         for d in docs[:3]:
             print("🧾 Sample doc:", d)
 
-    # Convert to DataFrame
+    # === Convert to DataFrame ===
     df = pd.DataFrame(docs)
-    print("🧮 DataFrame preview:")
+    print("🧮 DataFrame preview (before cleanup):")
     print(df.head())
 
+    # ✅ Drop the MongoDB internal _id field if it exists
     if "_id" in df.columns:
-        df["_id"] = df["_id"].astype(str)
+        df = df.drop(columns=["_id"])
+        print("🧹 Removed '_id' column successfully.")
 
+    # Save cleaned data to CSV
     df.to_csv(CSV_FILE, index=False)
     print(f"💾 Data saved locally to: {CSV_FILE}")
 
