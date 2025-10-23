@@ -6,9 +6,9 @@ from datetime import datetime
 import time
 
 # ===== CONFIGURATION =====
-PROJECT_ID = "flawless-agency-474210-p4"
-SUBSCRIPTION_ID = "GPSEvent-sub"  # existing subscription name
-BUCKET_NAME = "dataproc-staging-asia-south1-925894589695-qxkvzrhv"
+PROJECT_ID = "beaming-talent-475009-t2" #"flawless-agency-474210-p4"
+SUBSCRIPTION_ID = "gpsEvent-sub"  # existing subscription name
+BUCKET_NAME = "dataproc-staging-asia-south1-297094044725-gxm4u7vu" #"dataproc-staging-asia-south1-925894589695-qxkvzrhv"
 LOCAL_DIR = "/tmp/gps_data"
 BATCH_SIZE = 50          # messages per CSV
 UPLOAD_INTERVAL = 30     # seconds between GCS uploads
