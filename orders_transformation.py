@@ -134,6 +134,65 @@ async def transform_inventory_data(spark):
 
     print(f"✅ Inventory transformation complete! Output written to: {output_path}")
 
+# === Async function for Status Event transformation ===
+async def transform_status_events_data(spark):
+    input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/status_20251023_114332.csv"
+    orders_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/transformed_orders"
+    output_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/transformed_status_events"
+
+    print("✅ Starting Status Events Transformation Job...")
+
+    # === Define schema ===
+    schema = StructType([
+        StructField("order_id", IntegerType(), True),
+        StructField("courier_id", StringType(), True),
+        StructField("status", StringType(), True),
+        StructField("ts", StringType(), True),
+    ])
+
+    # === Read status event data ===
+    status_df = (
+        spark.read.option("header", "true").schema(schema).csv(input_path)
+    )
+    print(f"📥 Status Events Loaded: {status_df.count()} records")
+
+    # === Read transformed orders dataset for order_id validation ===
+    orders_df = (
+        spark.read.option("header", "true").csv(orders_path)
+    ).select("order_id")
+
+    print(f"📋 Orders Data Loaded for Validation: {orders_df.count()} records")
+
+    # === Validate order IDs ===
+    status_df = status_df.join(orders_df, on="order_id", how="inner")
+
+    # === Normalize status values ===
+    status_df = status_df.withColumn(
+        "status",
+        when(lower(trim(col("status"))).isin("picked_up", "pickup", "collected"), "picked_up")
+        .when(lower(trim(col("status"))).isin("delivered", "completed"), "delivered")
+        .when(lower(trim(col("status"))).isin("cancelled", "canceled"), "cancelled")
+        .when(lower(trim(col("status"))).isin("in_transit", "on_the_way", "shipped"), "in_transit")
+        .otherwise("unknown")
+    )
+
+    # === Convert timestamp to proper type ===
+    status_df = status_df.withColumn(
+        "ts",
+        F.to_timestamp(F.col("ts"), F.lit("yyyy-MM-dd'T'HH:mm:ssX"))
+    )
+
+    # === Sort events by timestamp to create timeline ===
+    status_df = status_df.orderBy("order_id", "ts")
+
+    # === Write the transformed dataset to GCS ===
+    (
+        status_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+
+    print(f"✅ Status Events transformation complete! Output written to: {output_path}")
 
 # === Main entrypoint ===
 async def main():
