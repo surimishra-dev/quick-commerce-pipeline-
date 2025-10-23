@@ -24,44 +24,44 @@ def get_spark_session():
 
 
 # === Async function for orders transformation ===
-async def transform_orders_data(spark):
-    input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/orders_data_20251015_150651.csv"
-    output_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/transformed_orders"
+# async def transform_orders_data(spark):
+#     input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/orders_data_20251015_150651.csv"
+#     output_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/transformed_orders"
 
-    print("✅ Starting Orders Transformation Job...")
+#     print("✅ Starting Orders Transformation Job...")
 
-    orders_df = (
-        spark.read.option("header", "true").option("inferSchema", "true").csv(input_path)
-    )
+#     orders_df = (
+#         spark.read.option("header", "true").option("inferSchema", "true").csv(input_path)
+#     )
 
-    print(f"📥 Orders Data Loaded: {orders_df.count()} records")
+#     print(f"📥 Orders Data Loaded: {orders_df.count()} records")
 
-    # Clean + Normalize
-    orders_df = (
-        orders_df.dropDuplicates(["order_id"])
-        .filter(lower(trim(col("status"))) != "test")
-        .withColumn("order_ts", col("order_ts").cast("timestamp"))
-        .withColumn(
-            "total_order_value",
-            (col("quantity") * col("price").cast(DecimalType(10, 2))).alias("total_order_value")
-        )
-        .withColumn(
-            "status",
-            when(lower(trim(col("status"))).isin("delivered", "complete"), "delivered")
-            .when(lower(trim(col("status"))).isin("cancelled", "canceled"), "cancelled")
-            .when(lower(trim(col("status"))).isin("pending", "in progress", "processing"), "pending")
-            .otherwise("unknown")
-        )
-    )
+#     # Clean + Normalize
+#     orders_df = (
+#         orders_df.dropDuplicates(["order_id"])
+#         .filter(lower(trim(col("status"))) != "test")
+#         .withColumn("order_ts", col("order_ts").cast("timestamp"))
+#         .withColumn(
+#             "total_order_value",
+#             (col("quantity") * col("price").cast(DecimalType(10, 2))).alias("total_order_value")
+#         )
+#         .withColumn(
+#             "status",
+#             when(lower(trim(col("status"))).isin("delivered", "complete"), "delivered")
+#             .when(lower(trim(col("status"))).isin("cancelled", "canceled"), "cancelled")
+#             .when(lower(trim(col("status"))).isin("pending", "in progress", "processing"), "pending")
+#             .otherwise("unknown")
+#         )
+#     )
 
-    # Write to GCS
-    (
-        orders_df.write.mode("overwrite")
-        .option("header", "true")
-        .csv(output_path)
-    )
+#     # Write to GCS
+#     (
+#         orders_df.write.mode("overwrite")
+#         .option("header", "true")
+#         .csv(output_path)
+#     )
 
-    print(f"✅ Orders transformation complete! Output written to: {output_path}")
+#     print(f"✅ Orders transformation complete! Output written to: {output_path}")
 
 
 # === Async function for inventory transformation ===
