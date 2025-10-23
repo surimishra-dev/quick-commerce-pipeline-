@@ -6,7 +6,7 @@ from pyspark.sql.functions import (
     col, lower, trim, when, initcap, lit, from_json
 )
 from pyspark.sql.types import (
-    DecimalType, StructType, StructField, StringType, IntegerType, TimestampType
+    DecimalType, StructType, StructField, StringType, DoubleType, IntegerType, TimestampType
 )
 
 
