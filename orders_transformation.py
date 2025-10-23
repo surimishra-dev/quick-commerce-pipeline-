@@ -194,6 +194,71 @@ async def transform_status_events_data(spark):
 
     print(f"✅ Status Events transformation complete! Output written to: {output_path}")
 
+async def transform_gps_events_data(spark):
+    # === File paths ===
+    gps_input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/GPSEventData/gps_20251023_120049.csv"
+    courier_details_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/transformed_status_events/part-00000-72bdc5a6-c8d7-4b53-a584-e6b35a87a618-c000.csv"
+    output_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/GPSEventData/transformed_gps_events"
+
+    print("✅ Starting GPS Events Transformation Job...")
+
+    # === Define schema ===
+    schema = StructType([
+        StructField("courier_id", StringType(), True),
+        StructField("lat", DoubleType(), True),
+        StructField("lon", DoubleType(), True),
+        StructField("ts", StringType(), True),
+    ])
+
+    # === Read GPS event data ===
+    gps_df = (
+        spark.read.option("header", "true")
+        .schema(schema)
+        .csv(gps_input_path)
+    )
+    print(f"📥 GPS Events Loaded: {gps_df.count()} records")
+
+    # === Filter invalid or missing coordinates ===
+    gps_df = gps_df.filter(
+        (F.col("lat").isNotNull()) &
+        (F.col("lon").isNotNull()) &
+        (F.col("lat").between(-90, 90)) &
+        (F.col("lon").between(-180, 180))
+    )
+    print(f"🧹 After Filtering Invalid Coordinates: {gps_df.count()} records")
+
+    # === Convert timestamp to proper type ===
+    gps_df = gps_df.withColumn(
+        "event_time",
+        F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX")
+    ).drop("ts")
+
+    # === Read courier details CSV for join ===
+    courier_df = (
+        spark.read.option("header", "true")
+        .csv(courier_details_path)
+    )
+    print(f"📦 Courier Details Loaded: {courier_df.count()} records")
+
+    # === Join GPS data with courier details ===
+    gps_df = gps_df.join(courier_df, on="courier_id", how="left")
+
+    # === Sort events by courier_id and timestamp to create a timeline ===
+    gps_df = gps_df.orderBy("courier_id", "event_time")
+
+    # === Write transformed dataset to GCS (CSV format) ===
+    (
+        gps_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+
+    print(f"✅ GPS Events transformation complete! Output written to: {output_path}")
+
+
+
+
+
 # === Main entrypoint ===
 async def main():
     spark = get_spark_session()
@@ -202,7 +267,8 @@ async def main():
     await asyncio.gather(
         # transform_orders_data(spark),
         # transform_inventory_data(spark),
-        transform_status_events_data(spark)
+        # transform_status_events_data(spark),
+        transform_gps_events_data(spark)
     )
 
     spark.stop()
