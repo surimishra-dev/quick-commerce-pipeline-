@@ -179,7 +179,7 @@ async def transform_status_events_data(spark):
     # === Convert timestamp to proper type ===
     status_df = status_df.withColumn(
         "ts",
-        F.to_timestamp(F.col("ts"), F.lit("yyyy-MM-dd'T'HH:mm:ssX"))
+        F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX")
     )
 
     # === Sort events by timestamp to create timeline ===
