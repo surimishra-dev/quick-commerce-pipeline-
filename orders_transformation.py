@@ -105,8 +105,9 @@ async def transform_inventory_data(spark):
     # === Convert date fields to timestamp ===
     inventory_df = inventory_df.withColumn(
     "last_update",
-    F.try_to_timestamp(F.trim(F.col("last_update")), F.lit("dd-MM-yyyy HH:mm"))
+    F.to_timestamp(F.trim(F.col("last_update").cast("string")), "dd-MM-yyyy HH:mm")
     )
+
 
     # === Flatten nested JSON (if coming from API) ===
     # Example: if some field 'metadata' contains nested JSON
