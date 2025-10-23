@@ -106,7 +106,7 @@ async def transform_inventory_data(spark):
     inventory_df = inventory_df.withColumn(
     "last_update",
     F.date_format(
-        F.try_to_timestamp(F.trim(F.col("last_update").cast("string")), "dd-MM-yyyy HH:mm"),
+        F.try_to_timestamp(F.trim(F.col("last_update").cast("string")), F.lit("dd-MM-yyyy HH:mm")),
         "yyyy-MM-dd'T'HH:mm:ss"
        )
      )
