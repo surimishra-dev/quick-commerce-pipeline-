@@ -67,7 +67,7 @@ def get_spark_session():
 
 # === Async function for inventory transformation ===
 async def transform_inventory_data(spark):
-    input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/Inventorydata/inventory_data_20251023_061656.csv"
+    input_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/Inventorydata/inventory_data_20251023_094410.csv"
     output_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/Inventorydata/transformed_inventory"
 
     print("✅ Starting Inventory Transformation Job...")
