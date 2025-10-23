@@ -5,8 +5,8 @@ import random
 from datetime import datetime, timezone
 
 # ===== GCP SETTINGS =====
-PROJECT_ID = "flawless-agency-474210-p4"
-TOPIC_ID = "StatusEvent"  # Pub/Sub topic name for order status events
+PROJECT_ID = "beaming-talent-475009-t2" #"flawless-agency-474210-p4"
+TOPIC_ID = "statusEvent"  # Pub/Sub topic name for order status events
 
 # Initialize Pub/Sub publisher
 publisher = pubsub_v1.PublisherClient()
