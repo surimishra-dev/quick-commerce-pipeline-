@@ -5,8 +5,8 @@ import random
 from datetime import datetime, timezone
 
 # GCP settings
-PROJECT_ID = "flawless-agency-474210-p4"
-TOPIC_ID = "GPSEvent"
+PROJECT_ID = "beaming-talent-475009-t2" #"flawless-agency-474210-p4"
+TOPIC_ID = "gpsEvent"
 
 # Initialize Pub/Sub publisher
 publisher = pubsub_v1.PublisherClient()
