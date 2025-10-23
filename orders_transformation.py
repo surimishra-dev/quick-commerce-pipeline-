@@ -133,7 +133,7 @@ async def main():
 
     # Run both transformations asynchronously
     await asyncio.gather(
-        transform_orders_data(spark),
+        # transform_orders_data(spark),
         transform_inventory_data(spark)
     )
 
