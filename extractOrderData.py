@@ -7,7 +7,7 @@ import sqlalchemy
 from google.cloud import storage
 
 PROJECT_ID = "flawless-agency-474210-p4"
-INSTANCE_CONNECTION_NAME = "flawless-agency-474210-p4:asia-south1:quickcommerce"  # format: project:region:instance
+INSTANCE_CONNECTION_NAME = "flawless-agency-474210-p4:asia-south1:quickcommerce89"  # format: project:region:instance
 DB_USER = "abhranil"
 DB_PASS = "Abhranil@89"
 DB_NAME = "QuickCommerce"
