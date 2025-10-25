@@ -4,6 +4,7 @@ import time
 import random
 import logging
 from datetime import datetime, timezone
+import sys
 
 # ===== GCP SETTINGS =====
 PROJECT_ID = "beaming-talent-475009-t2"
