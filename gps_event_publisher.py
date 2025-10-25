@@ -27,7 +27,11 @@ def generate_gps_event(courier_id):
 # ===== Main Function =====
 def run_gps_publisher():
     """Publish GPS events for 10 seconds."""
-    print("🚀 Starting GPS data stream...")
+
+    logger.info(f"🚀 Starting Pub/Sub publishing for {duration_seconds} seconds...")
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
+    
     courier_ids = [
         "C100", "C101", "C102", "C103", "C104", "C105", "C106",
         "C107", "C108", "C109", "C110", "C111", "C112", "C113",
