@@ -49,6 +49,7 @@ def run_gps_publisher():
     ]
 
     start_time = time.time()
+    published_count = 0
     try:
         
          while time.time() - start_time < 10:  # run for 10 seconds
@@ -65,7 +66,7 @@ def run_gps_publisher():
     except Exception as e:
         logger.error(f"❌ Error during publishing: {e}", exc_info=True)
     finally:
-        logger.info(f"🛑 Finished publishing  messages after 10 seconds.")
+        logger.info(f"🛑 Finished publishing {published_count} messages after 10 seconds.")
         sys.stdout.flush()
 
 if __name__ == "__main__":
