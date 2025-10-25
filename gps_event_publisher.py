@@ -9,6 +9,14 @@ from datetime import datetime, timezone
 PROJECT_ID = "beaming-talent-475009-t2"
 TOPIC_ID = "gpsEvent"
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+
+logger = logging.getLogger(__name__)
+
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
 
