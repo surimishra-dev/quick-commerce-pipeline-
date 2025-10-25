@@ -2,6 +2,7 @@ from google.cloud import pubsub_v1
 import json
 import time
 import random
+import logging
 from datetime import datetime, timezone
 
 # ===== GCP SETTINGS =====
