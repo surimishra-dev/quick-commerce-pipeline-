@@ -39,16 +39,24 @@ def run_gps_publisher():
     ]
 
     start_time = time.time()
-    while time.time() - start_time < 10:  # run for 10 seconds
-        for courier_id in courier_ids:
-            event = generate_gps_event(courier_id)
-            data_str = json.dumps(event)
-            data_bytes = data_str.encode("utf-8")
-            publisher.publish(topic_path, data=data_bytes)
-            published_count += 1
-            logger.info(f"✅ Published: {json.dumps(event)}")
-            sys.stdout.flush()
-            print(f"✅ Published: {data_str}")
-            time.sleep(0.5)
+    try:
+        
+         while time.time() - start_time < 10:  # run for 10 seconds
+            for courier_id in courier_ids:
+                event = generate_gps_event(courier_id)
+                data_str = json.dumps(event)
+                data_bytes = data_str.encode("utf-8")
+                publisher.publish(topic_path, data=data_bytes)
+                published_count += 1
+                logger.info(f"✅ Published: {json.dumps(event)}")
+                sys.stdout.flush()
+                time.sleep(0.5)
 
-    print("🛑 GPS publisher finished after 10 seconds.")
+    except Exception as e:
+        logger.error(f"❌ Error during publishing: {e}", exc_info=True)
+    finally:
+        logger.info(f"🛑 Finished publishing {published_count} messages after {duration_seconds} seconds.")
+        sys.stdout.flush()
+
+if __name__ == "__main__":
+    run_gps_publisher()
