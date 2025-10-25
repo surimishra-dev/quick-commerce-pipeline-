@@ -38,7 +38,7 @@ def generate_gps_event(courier_id):
 def run_gps_publisher():
     """Publish GPS events for 10 seconds."""
 
-    logger.info(f"🚀 Starting Pub/Sub publishing for {duration_seconds} seconds...")
+    logger.info(f"🚀 Starting Pub/Sub publishing for 10 seconds...")
     publisher = pubsub_v1.PublisherClient()
     topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
     
