@@ -45,6 +45,9 @@ def run_gps_publisher():
             data_str = json.dumps(event)
             data_bytes = data_str.encode("utf-8")
             publisher.publish(topic_path, data=data_bytes)
+            published_count += 1
+            logger.info(f"✅ Published: {json.dumps(event)}")
+            sys.stdout.flush()
             print(f"✅ Published: {data_str}")
             time.sleep(0.5)
 
