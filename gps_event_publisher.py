@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 import sys
 
 # ===== GCP SETTINGS =====
-PROJECT_ID = "beaming-talent-475009-t2"
+PROJECT_ID = "flawless-agency-474210-p4"
 TOPIC_ID = "gpsEvent"
 
 logging.basicConfig(
