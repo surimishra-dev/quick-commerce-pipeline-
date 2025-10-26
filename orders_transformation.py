@@ -19,7 +19,6 @@ def get_spark_session():
         .master("local[*]")
         .config("spark.jars", "/home/shris/spark-jars/gcs-connector-hadoop3-latest.jar")
         .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
-        .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
         .getOrCreate()
     )
     return spark
