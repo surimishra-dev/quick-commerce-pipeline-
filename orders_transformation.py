@@ -11,16 +11,16 @@ from pyspark.sql.types import (
 )
 
 # === Create SparkSession ===
-def get_spark_session():
+ef get_spark_session():
     """Create and return a SparkSession configured for GCS access."""
     spark = (
         SparkSession.builder
         .appName("DataTransformationJobs")
-        .master("local[*]")  # Use local mode for testing
+        .master("local[*]")
+        .config("spark.jars", "/home/shris/spark-jars/gcs-connector-hadoop3-latest.jar")
         .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
         .config("spark.hadoop.google.cloud.auth.service.account.enable", "true")
-        # Uncomment the below line if running locally (not on Dataproc)
-        # .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", "/path/to/service-account.json")
+        .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", "/home/shris/quick-commerce-pipeline-/service_account.json")
         .getOrCreate()
     )
     return spark
