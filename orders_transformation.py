@@ -11,7 +11,7 @@ from pyspark.sql.types import (
 )
 
 # === Create SparkSession ===
-ef get_spark_session():
+def get_spark_session():
     """Create and return a SparkSession configured for GCS access."""
     spark = (
         SparkSession.builder
