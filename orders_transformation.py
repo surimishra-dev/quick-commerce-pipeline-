@@ -1,4 +1,5 @@
 import asyncio
+import re
 from datetime import datetime
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
@@ -8,51 +9,45 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import (
     DecimalType, StructType, StructField, StringType, DoubleType, IntegerType, TimestampType
 )
-import re
 
-
-# ==========================================================
-# Helper: Get Spark session
-# ==========================================================
+# === Create SparkSession ===
 def get_spark_session():
     """Create and return a SparkSession configured for GCS access."""
     spark = (
         SparkSession.builder
         .appName("DataTransformationJobs")
+        .master("local[*]")  # Use local mode for testing
         .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
         .config("spark.hadoop.google.cloud.auth.service.account.enable", "true")
-        .config("spark.jars", "gcs-connector.jar")  # optional if local
-        .master("local[*]")
+        # Uncomment the below line if running locally (not on Dataproc)
+        # .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", "/path/to/service-account.json")
         .getOrCreate()
     )
     return spark
 
 
-# ==========================================================
-# Helper: Find latest file in a GCS directory
-# ==========================================================
+# === Helper: Find the most recent file in GCS folder ===
 def get_latest_file(spark, folder_path):
     """
-    Lists all files in a GCS folder and returns the most recent one
-    based on timestamp in filename or modified time.
+    Find the most recent CSV file in a GCS folder.
+    Works both in Dataproc and locally if GCS connector is configured.
     """
     try:
-        # Get all files in the directory
-        files_df = spark._jvm.org.apache.hadoop.fs.FileSystem \
-            .get(spark._jsc.hadoopConfiguration()) \
-            .listStatus(spark._jvm.org.apache.hadoop.fs.Path(folder_path))
+        hadoop_conf = spark._jsc.hadoopConfiguration()
+        fs = spark._jvm.org.apache.hadoop.fs.FileSystem.get(
+            spark._jvm.org.apache.hadoop.fs.Path(folder_path).toUri(), hadoop_conf
+        )
 
-        files = [str(file.getPath().toString()) for file in files_df if file.isFile()]
+        status = fs.globStatus(spark._jvm.org.apache.hadoop.fs.Path(folder_path + "/*.csv"))
+        files = [str(file.getPath().toString()) for file in status if file.isFile()]
         if not files:
-            raise FileNotFoundError(f"No files found in {folder_path}")
+            raise FileNotFoundError(f"No CSV files found in {folder_path}")
 
-        # If only one file, return it
         if len(files) == 1:
             return files[0]
 
-        # Try to pick the one with latest timestamp pattern in filename
-        def extract_ts(path):
-            match = re.search(r"(\d{8}_\d{6})", path)
+        def extract_ts(filename):
+            match = re.search(r"(\d{8}_\d{6})", filename)
             if match:
                 try:
                     return datetime.strptime(match.group(1), "%Y%m%d_%H%M%S")
@@ -61,33 +56,31 @@ def get_latest_file(spark, folder_path):
             return datetime.min
 
         latest_file = max(files, key=extract_ts)
+        print(f"📄 Latest file detected: {latest_file}")
         return latest_file
 
     except Exception as e:
         raise Exception(f"Error finding latest file in {folder_path}: {e}")
 
 
-# ==========================================================
-# Orders Transformation
-# ==========================================================
+# === Orders Transformation ===
 async def transform_orders_data(spark):
-    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data"
+    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/"
     input_path = get_latest_file(spark, folder_path)
-    output_path = f"{folder_path}/transformed_orders"
+    output_path = folder_path + "transformed_orders"
 
-    print(f"📁 Using Orders input: {input_path}")
-
-    orders_df = (
-        spark.read.option("header", "true").option("inferSchema", "true").csv(input_path)
-    )
-
-    print(f"📥 Loaded Orders Data: {orders_df.count()} records")
+    print("✅ Starting Orders Transformation Job...")
+    orders_df = spark.read.option("header", "true").option("inferSchema", "true").csv(input_path)
+    print(f"📥 Orders Data Loaded: {orders_df.count()} records")
 
     orders_df = (
         orders_df.dropDuplicates(["order_id"])
         .filter(lower(trim(col("status"))) != "test")
         .withColumn("order_ts", col("order_ts").cast("timestamp"))
-        .withColumn("total_order_value", (col("quantity") * col("price").cast(DecimalType(10, 2))))
+        .withColumn(
+            "total_order_value",
+            (col("quantity") * col("price").cast(DecimalType(10, 2))).alias("total_order_value")
+        )
         .withColumn(
             "status",
             when(lower(trim(col("status"))).isin("delivered", "complete"), "delivered")
@@ -97,19 +90,21 @@ async def transform_orders_data(spark):
         )
     )
 
-    orders_df.write.mode("overwrite").option("header", "true").csv(output_path)
-    print(f"✅ Orders transformation complete → {output_path}")
+    (
+        orders_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+    print(f"✅ Orders transformation complete! Output written to: {output_path}")
 
 
-# ==========================================================
-# Inventory Transformation
-# ==========================================================
+# === Inventory Transformation ===
 async def transform_inventory_data(spark):
-    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/Inventorydata"
+    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/Inventorydata/"
     input_path = get_latest_file(spark, folder_path)
-    output_path = f"{folder_path}/transformed_inventory"
+    output_path = folder_path + "transformed_inventory"
 
-    print(f"📁 Using Inventory input: {input_path}")
+    print("✅ Starting Inventory Transformation Job...")
 
     schema = StructType([
         StructField("item_id", IntegerType(), True),
@@ -121,7 +116,7 @@ async def transform_inventory_data(spark):
     ])
 
     inventory_df = spark.read.option("header", "true").schema(schema).csv(input_path)
-    print(f"📥 Loaded Inventory Data: {inventory_df.count()} records")
+    print(f"📥 Inventory Data Loaded: {inventory_df.count()} records")
 
     inventory_df = (
         inventory_df
@@ -138,20 +133,22 @@ async def transform_inventory_data(spark):
         )
     )
 
-    inventory_df.write.mode("overwrite").option("header", "true").csv(output_path)
-    print(f"✅ Inventory transformation complete → {output_path}")
+    (
+        inventory_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+    print(f"✅ Inventory transformation complete! Output written to: {output_path}")
 
 
-# ==========================================================
-# Status Event Transformation
-# ==========================================================
+# === Status Events Transformation ===
 async def transform_status_events_data(spark):
-    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData"
+    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/"
     input_path = get_latest_file(spark, folder_path)
     orders_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/orders_data/transformed_orders"
-    output_path = f"{folder_path}/transformed_status_events"
+    output_path = folder_path + "transformed_status_events"
 
-    print(f"📁 Using Status Events input: {input_path}")
+    print("✅ Starting Status Events Transformation Job...")
 
     schema = StructType([
         StructField("order_id", IntegerType(), True),
@@ -161,36 +158,41 @@ async def transform_status_events_data(spark):
     ])
 
     status_df = spark.read.option("header", "true").schema(schema).csv(input_path)
-    orders_df = spark.read.option("header", "true").csv(orders_path).select("order_id")
+    print(f"📥 Status Events Loaded: {status_df.count()} records")
 
-    status_df = (
-        status_df.join(orders_df, on="order_id", how="inner")
-        .withColumn(
-            "status",
-            when(lower(trim(col("status"))).isin("picked_up", "pickup", "collected"), "picked_up")
-            .when(lower(trim(col("status"))).isin("delivered", "completed"), "delivered")
-            .when(lower(trim(col("status"))).isin("cancelled", "canceled"), "cancelled")
-            .when(lower(trim(col("status"))).isin("in_transit", "on_the_way", "shipped"), "in_transit")
-            .otherwise("unknown")
-        )
-        .withColumn("ts", F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX"))
-        .orderBy("order_id", "ts")
+    orders_df = spark.read.option("header", "true").csv(orders_path).select("order_id")
+    print(f"📋 Orders Data Loaded for Validation: {orders_df.count()} records")
+
+    status_df = status_df.join(orders_df, on="order_id", how="inner")
+
+    status_df = status_df.withColumn(
+        "status",
+        when(lower(trim(col("status"))).isin("picked_up", "pickup", "collected"), "picked_up")
+        .when(lower(trim(col("status"))).isin("delivered", "completed"), "delivered")
+        .when(lower(trim(col("status"))).isin("cancelled", "canceled"), "cancelled")
+        .when(lower(trim(col("status"))).isin("in_transit", "on_the_way", "shipped"), "in_transit")
+        .otherwise("unknown")
     )
 
-    status_df.write.mode("overwrite").option("header", "true").csv(output_path)
-    print(f"✅ Status Events transformation complete → {output_path}")
+    status_df = status_df.withColumn("ts", F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX"))
+    status_df = status_df.orderBy("order_id", "ts")
+
+    (
+        status_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+    print(f"✅ Status Events transformation complete! Output written to: {output_path}")
 
 
-# ==========================================================
-# GPS Event Transformation
-# ==========================================================
+# === GPS Events Transformation ===
 async def transform_gps_events_data(spark):
-    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/GPSEventData"
-    input_path = get_latest_file(spark, folder_path)
-    courier_details_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/transformed_status_events"
-    output_path = f"{folder_path}/transformed_gps_events"
+    folder_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/GPSEventData/"
+    gps_input_path = get_latest_file(spark, folder_path)
+    courier_details_path = "gs://dataproc-staging-asia-south1-297094044725-gxm4u7vu/StatusEventData/transformed_status_events/"
+    output_path = folder_path + "transformed_gps_events"
 
-    print(f"📁 Using GPS input: {input_path}")
+    print("✅ Starting GPS Events Transformation Job...")
 
     schema = StructType([
         StructField("courier_id", StringType(), True),
@@ -199,29 +201,34 @@ async def transform_gps_events_data(spark):
         StructField("ts", StringType(), True),
     ])
 
-    gps_df = spark.read.option("header", "true").schema(schema).csv(input_path)
-    courier_df = spark.read.option("header", "true").csv(courier_details_path)
+    gps_df = spark.read.option("header", "true").schema(schema).csv(gps_input_path)
+    print(f"📥 GPS Events Loaded: {gps_df.count()} records")
 
-    gps_df = (
-        gps_df.filter(
-            (col("lat").isNotNull()) &
-            (col("lon").isNotNull()) &
-            (col("lat").between(-90, 90)) &
-            (col("lon").between(-180, 180))
-        )
-        .withColumn("event_time", F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX"))
-        .drop("ts")
-        .join(courier_df, on="courier_id", how="left")
-        .orderBy("courier_id", "event_time")
+    gps_df = gps_df.filter(
+        (col("lat").isNotNull()) &
+        (col("lon").isNotNull()) &
+        (col("lat").between(-90, 90)) &
+        (col("lon").between(-180, 180))
     )
 
-    gps_df.write.mode("overwrite").option("header", "true").csv(output_path)
-    print(f"✅ GPS Events transformation complete → {output_path}")
+    gps_df = gps_df.withColumn("event_time", F.to_timestamp(F.col("ts"), "yyyy-MM-dd'T'HH:mm:ssX")).drop("ts")
+
+    courier_df = spark.read.option("header", "true").csv(courier_details_path)
+    print(f"📦 Courier Details Loaded: {courier_df.count()} records")
+
+    gps_df = gps_df.join(courier_df, on="courier_id", how="left")
+    gps_df = gps_df.orderBy("courier_id", "event_time")
+
+    (
+        gps_df.write.mode("overwrite")
+        .option("header", "true")
+        .csv(output_path)
+    )
+
+    print(f"✅ GPS Events transformation complete! Output written to: {output_path}")
 
 
-# ==========================================================
-# Main entrypoint
-# ==========================================================
+# === Main Entry Point ===
 async def main():
     spark = get_spark_session()
 
